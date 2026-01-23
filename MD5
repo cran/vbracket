@@ -1,8 +1,8 @@
-c65f82d50bd0da2f0551fc64bf3ef615 *DESCRIPTION
+9370023ff8b6b7ba61ae7ab27870ff23 *DESCRIPTION
 977ba6f4d58c0ea5610234320f1ffd08 *LICENSE
 874bee37d3bdd1316d1c47ca3ec0775a *NAMESPACE
-ba3caa2fdf7b01f2c7aee4805ba60db6 *R/annotation_grob.R
-a74bf3ac7dab6b0d8b84afab65776d7a *R/custom_legend_with_brackets.R
+da67f925b705399db374a13e15218cb3 *R/annotation_grob.R
+53e8a684b50003707ac2d410eacf51ce *R/custom_legend_with_brackets.R
 f238f60e564cb4d78cfff0c9414a6b3c *R/ggplot_integration.R
 e1d29691015fd7b59b740713f8295673 *R/ggsave_vbracket.R
 237aefa14348df51f13f9deef8e70c97 *R/helpers.R

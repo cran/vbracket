@@ -1,7 +1,7 @@
 Package: vbracket
 Type: Package
 Title: Custom Legends with Statistical Comparison Brackets
-Version: 1.0.2
+Version: 1.1.0
 Authors@R: person("Yoshiaki", "Sato",
                   email = "h20gg702@outlook.jp",
                   role = c("aut", "cre"),
@@ -20,9 +20,9 @@ URL: https://github.com/h20gg702/vbracket
 BugReports: https://github.com/h20gg702/vbracket/issues
 RoxygenNote: 7.3.3
 NeedsCompilation: no
-Packaged: 2025-12-22 05:51:00 UTC; yoshiakisato
+Packaged: 2026-01-23 06:30:50 UTC; yoshiakisato
 Author: Yoshiaki Sato [aut, cre] (ORCID:
     <https://orcid.org/0000-0003-3375-5189>)
 Maintainer: Yoshiaki Sato <h20gg702@outlook.jp>
 Repository: CRAN
-Date/Publication: 2026-01-07 08:20:02 UTC
+Date/Publication: 2026-01-23 08:10:02 UTC
