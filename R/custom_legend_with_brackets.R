@@ -20,6 +20,10 @@
 #' @param sig_face Character. Font face for significance symbols (default "plain")
 #' @param output_width Numeric. Output figure width in inches (optional, for METHOD 2)
 #' @param output_height Numeric. Output figure height in inches (optional, for METHOD 2)
+#' @param line_length Numeric. Manual override for legend symbol line length (default NULL = auto-scaled by text_size)
+#' @param line_width Numeric. Manual override for legend symbol line width (default NULL = auto-scaled by text_size)
+#' @param item_spacing Numeric. Manual override for vertical spacing between legend items (default NULL = auto-scaled by text_size)
+#' @param bracket_layer_spacing Numeric. Manual override for horizontal spacing between bracket layers (default NULL = auto-calculated)
 #'
 #' @return A gTree object containing the custom legend
 #' @export
@@ -50,17 +54,41 @@ draw_legend_with_brackets <- function(labels,
                                      sig_size = 11,
                                      sig_face = "plain",
                                      output_width = NULL,
-                                     output_height = NULL) {
+                                     output_height = NULL,
+                                     line_length = NULL,
+                                     line_width = NULL,
+                                     item_spacing = NULL,
+                                     bracket_layer_spacing = NULL) {
 
   n_items <- length(labels)
 
   # Calculate scale factor based on text_size (baseline = 10)
   scale_factor <- text_size / 10
 
+  # Determine line_length - use manual override or auto-scale
+  if (!is.null(line_length)) {
+    line_length_val <- line_length
+  } else {
+    line_length_val <- 0.15 * scale_factor  # Line length (auto-scaled)
+  }
+
+  # Determine line_width - use manual override or auto-scale
+  if (!is.null(line_width)) {
+    line_width_val <- line_width
+  } else {
+    line_width_val <- 3 * scale_factor      # Line width (auto-scaled)
+  }
+
+  # Determine item_spacing - use manual override or auto-scale
+  if (!is.null(item_spacing)) {
+    min_item_spacing <- item_spacing
+  } else {
+    min_item_spacing <- 0.055 * scale_factor  # Scale spacing with text size
+  }
+
   # Scale symbol dimensions with text_size
   line_x_start <- 0.1                              # Start position (fixed)
-  line_x_end <- 0.1 + (0.15 * scale_factor)        # End position (scaled)
-  line_width <- 3 * scale_factor                   # Line width (scaled)
+  line_x_end <- 0.1 + line_length_val              # End position
   point_x <- (line_x_start + line_x_end) / 2       # Point at center of line
   point_size <- 0.3 * scale_factor                 # Point size (scaled)
   text_x_start <- line_x_end + 0.05                # Text starts after line + gap
@@ -68,7 +96,6 @@ draw_legend_with_brackets <- function(labels,
   # Calculate height if not specified
   if (is.null(height)) {
     # Auto-calculate based on number of items AND text_size
-    min_item_spacing <- 0.055 * scale_factor  # Scale spacing with text size
     title_height <- if (!is.null(title)) 0.10 * scale_factor else 0
     height <- title_height + (n_items * min_item_spacing) + (0.05 * scale_factor)
   }
@@ -109,22 +136,19 @@ draw_legend_with_brackets <- function(labels,
   }
 
   # Calculate item positions with spacing to prevent overlap
-  # Minimum spacing scales with text size
-  min_spacing <- 0.055 * scale_factor
-
   available_height <- y_start - 0.05
 
   # Use even spacing, but enforce minimum
   ideal_spacing <- available_height / (n_items + 1)
-  item_spacing <- max(min_spacing, ideal_spacing)
+  item_spacing_val <- max(min_item_spacing, ideal_spacing)
 
   # If items don't fit, warn user
-  if (item_spacing * n_items > available_height) {
+  if (item_spacing_val * n_items > available_height) {
     warning("Legend height (", round(height, 3), ") may be too small for ", n_items,
-            " items. Recommend height >= ", round((n_items * min_spacing) + 0.15, 2))
+            " items. Recommend height >= ", round((n_items * min_item_spacing) + 0.15, 2))
   }
 
-  item_y_positions <- seq(y_start - item_spacing, y_start - (n_items * item_spacing), length.out = n_items)
+  item_y_positions <- seq(y_start - item_spacing_val, y_start - (n_items * item_spacing_val), length.out = n_items)
   names(item_y_positions) <- labels
 
   # Calculate maximum text width to position brackets correctly
@@ -167,7 +191,7 @@ draw_legend_with_brackets <- function(labels,
     line_grob <- linesGrob(
       x = c(line_x_start, line_x_end),
       y = c(y_pos, y_pos),
-      gp = gpar(col = colors[i], lwd = line_width),
+      gp = gpar(col = colors[i], lwd = line_width_val),
       vp = legend_vp
     )
     grobs[[length(grobs) + 1]] <- line_grob
@@ -197,48 +221,19 @@ draw_legend_with_brackets <- function(labels,
 
   # Add brackets if comparisons provided
   if (!is.null(comparisons) && nrow(comparisons) > 0) {
-    # Detect overlapping brackets and assign horizontal offsets
-    bracket_layers <- rep(0, nrow(comparisons))
-
-    for (i in seq_len(nrow(comparisons))) {
-      group1_i <- as.character(comparisons$group1[i])
-      group2_i <- as.character(comparisons$group2[i])
-
-      if (!group1_i %in% names(item_y_positions) || !group2_i %in% names(item_y_positions)) {
-        next
-      }
-
-      y1_i <- item_y_positions[group1_i]
-      y2_i <- item_y_positions[group2_i]
-      range_i <- c(min(y1_i, y2_i), max(y1_i, y2_i))
-
-      # Check for overlap with previous brackets
-      if (i > 1) {
-        for (j in 1:(i-1)) {
-          group1_j <- as.character(comparisons$group1[j])
-          group2_j <- as.character(comparisons$group2[j])
-
-          if (!group1_j %in% names(item_y_positions) || !group2_j %in% names(item_y_positions)) {
-            next
-          }
-
-          y1_j <- item_y_positions[group1_j]
-          y2_j <- item_y_positions[group2_j]
-          range_j <- c(min(y1_j, y2_j), max(y1_j, y2_j))
-
-          # Check if ranges overlap
-          if (range_i[1] <= range_j[2] && range_i[2] >= range_j[1]) {
-            # Overlaps - use next layer
-            bracket_layers[i] <- max(bracket_layers[i], bracket_layers[j] + 1)
-          }
-        }
-      }
-    }
+    # Assign sequential layers to ALL brackets (equal spacing)
+    # Each bracket gets its own layer: 0, 1, 2, ...
+    bracket_layers <- seq(0, nrow(comparisons) - 1)
 
     # Scale bracket dimensions with text_size
     bracket_line_width <- 1.5 * scale_factor        # Bracket line width
     bracket_connector_length <- 0.05 * scale_factor # Horizontal connector length
-    bracket_layer_spacing <- 0.10 * scale_factor    # Spacing between bracket layers
+    # Determine bracket_layer_spacing - use manual override or auto-scale
+    if (!is.null(bracket_layer_spacing)) {
+      bracket_layer_spacing_val <- bracket_layer_spacing
+    } else {
+      bracket_layer_spacing_val <- 0.10 * scale_factor    # Spacing between bracket layers (auto-scaled)
+    }
     bracket_sig_offset <- 0.05 * scale_factor       # Offset for significance label
     text_height_offset <- 0.015 * scale_factor      # Vertical offset to clear text
 
@@ -267,7 +262,7 @@ draw_legend_with_brackets <- function(labels,
       y2_bracket <- y2 - text_height_offset  # Bottom bracket slightly below text center
 
       # Calculate bracket X position based on text width and layer
-      bracket_x <- bracket_x_base + (bracket_layers[i] * bracket_layer_spacing)
+      bracket_x <- bracket_x_base + (bracket_layers[i] * bracket_layer_spacing_val)
 
       # Vertical line (use offset positions)
       vert_line <- linesGrob(
