@@ -1,10 +1,10 @@
-e23049c28d06149862321f3fafe6ec9f *DESCRIPTION
+2b0cfa66a7de46f6545c03cfa366891c *DESCRIPTION
 977ba6f4d58c0ea5610234320f1ffd08 *LICENSE
 874bee37d3bdd1316d1c47ca3ec0775a *NAMESPACE
 72c0281b3ec144447bca4d728696945a *NEWS.md
 aa2b591a588d78c552f0d06764f89e3b *R/annotation_grob.R
 e9369401440dc6a2e73bd62999378c75 *R/custom_legend_with_brackets.R
-8ff3f6316c7464d12ab0da687169a853 *R/ggplot_integration.R
+b9c4b86fbb1ad0fe0375efc38cf85cfc *R/ggplot_integration.R
 e1d29691015fd7b59b740713f8295673 *R/ggsave_vbracket.R
 237aefa14348df51f13f9deef8e70c97 *R/helpers.R
 4aa1102796c79cd80be89c79ae5f9aca *R/print_method.R
